@@ -4,7 +4,7 @@ let data = [];
 let first20 = [];
 const HORIZONTAL_MARGIN = 100;
 const VERTICAL_MARGIN = 200;
-const CHART_WIDTH = 1600;
+const CHART_WIDTH = 1200;
 const CHART_HEIGHT = 600;
 
 await main();
