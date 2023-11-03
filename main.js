@@ -9,7 +9,6 @@ const CHART_HEIGHT = 600;
 
 await main();
 setup();
-SecurityPolicyViolationEvent
 
 async function main() {
     data = await getData();
@@ -40,12 +39,12 @@ function setup() {
         .padding([0.2]);
 
     // This is for individual bars (add other numerical values)
-    let subgroups = ["subscribers", "video views"];
+    let subgroups = ["subscribers", "video views", "uploads"];
 
     // Colors for the bars, change/add to these
     var color = d3.scaleOrdinal()
         .domain(subgroups)
-        .range(['#e41a1c','#377eb8'])
+        .range(['#e41a1c','#377eb8', "#FFFF00"])
 
     let xSubGroup = d3.scaleBand()
         .domain(subgroups)
@@ -60,7 +59,7 @@ function setup() {
         .range([CHART_HEIGHT, 0]);
 
     svg.append("g")
-        .classed("y-scale", true)
+        .classed("current-y-scale", true)
         .call(d3.axisLeft(yScaleSubscribers));
 
     // Y-Axis for video views
@@ -68,6 +67,17 @@ function setup() {
     console.log(maxYVideoViews);
     let yScaleVideoViews = d3.scaleLinear()
         .domain([0, maxYVideoViews])
+        .range([CHART_HEIGHT, 0]);
+
+    svg.append("g")
+        .classed("current-y-scale", false)
+        .call(d3.axisLeft(yScaleVideoViews));
+
+    // Y-Axis for number of uploads
+    let maxYUploads = d3.max(first20, first20 => + first20["uploads"]);
+    console.log(maxYUploads);
+    let yScaleUploads = d3.scaleLinear()
+        .domain([0, maxYUploads])
         .range([CHART_HEIGHT, 0]);
     
 
@@ -81,6 +91,7 @@ function setup() {
         .attr("dy", ".15em")
         .attr("transform", "rotate(-70)");
 
+    // Making bar chart with subgroups of individual bars
     console.log(xScale.bandwidth());
     console.log(xSubGroup.bandwidth());
     svg.append("g")
@@ -105,6 +116,8 @@ function setup() {
                     return yScaleSubscribers(d.value);
                 else if (d.key === "video views")
                     return yScaleVideoViews(d.value);
+                else if (d.key === "uploads")
+                    return yScaleUploads(d.value);
             })
               .attr("width", xSubGroup.bandwidth())
               .attr("height", function(d) {
@@ -113,6 +126,8 @@ function setup() {
                 }
                 else if (d.key === "video views")
                     return CHART_HEIGHT - yScaleVideoViews(d.value);
+                else if (d.key === "uploads")
+                    return CHART_HEIGHT - yScaleUploads(d.value);
                 })
               .attr("fill", function(d) { return color(d.key); });
 }
