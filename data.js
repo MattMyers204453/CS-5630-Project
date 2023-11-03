@@ -2,7 +2,7 @@ const DATA_PATH = "youtube-data.csv";
 
 export async function getData() {
     const data_as_string = await fetchFile();
-    const data_as_object = readStringIntoObject(data_as_string)
+    const data_as_object = readStringIntoObject(data_as_string);
     return data_as_object;
 }
 
@@ -35,5 +35,5 @@ export function readStringIntoObject(data_as_string) {
 
         data.push(row);
     }
-    return data
+    return data;
 }
