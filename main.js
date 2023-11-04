@@ -3,7 +3,7 @@ import { getData } from './data.js';
 let data = [];
 let first20 = [];
 let yAxisToShow = "subscribers";
-const HORIZONTAL_MARGIN = 100;
+const HORIZONTAL_MARGIN = 150;
 const VERTICAL_MARGIN = 200;
 const CHART_WIDTH = 1200;
 const CHART_HEIGHT = 600;
@@ -27,6 +27,21 @@ function setup() {
         .append("g")
         .attr("transform", "translate(" + HORIZONTAL_MARGIN + "," + VERTICAL_MARGIN + ")");
 
+
+    // Left text for chart
+    svg.append("text")
+        .classed("left-text", true)
+        .attr("x", "0")
+        .attr("y", "250")
+        .text("Subscribers")
+        .attr("transform", "translate(-365, 350)rotate(270)");
+
+    // Bottom text for Channel names
+    svg.append("text")
+        .classed("bottom-text", true)
+        .attr("x", CHART_WIDTH / 2 - 50)
+        .attr("y", CHART_HEIGHT + VERTICAL_MARGIN - 50)
+        .text("Channel Name");
     // This is for individual channels
     let groups = d3.map(first20, (row) => {
         return row.Youtuber;
@@ -150,16 +165,19 @@ function switchYAxis(newYAxisValue) {
             d3.select("#y-axis-subscribers").classed("hidden", false);
             d3.select("#y-axis-views").classed("hidden", true);
             d3.select("#y-axis-uploads").classed("hidden", true);
+            d3.select(".left-text").text("Subscribers");
             break;
         case 'views':
             d3.select("#y-axis-views").classed("hidden", false);
             d3.select("#y-axis-subscribers").classed("hidden", true);
             d3.select("#y-axis-uploads").classed("hidden", true);
+            d3.select(".left-text").text("Total Channel Views");
             break;
         case 'uploads':
             d3.select("#y-axis-uploads").classed("hidden", false);
             d3.select("#y-axis-views").classed("hidden", true);
             d3.select("#y-axis-subscribers").classed("hidden", true);
+            d3.select(".left-text").text("Number of Video Uploads");
             break;
         default:
             console.log("yAxis value not recognized");
