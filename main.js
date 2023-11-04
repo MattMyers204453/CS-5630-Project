@@ -86,7 +86,7 @@ function setup() {
 
     svg.append("g")
         .classed("hidden", true)
-        .attr("id", "y-axis-views")
+        .attr("id", "y-axis-video-views")
         .call(d3.axisLeft(yScaleVideoViews));
 
     // Y-Axis for number of uploads
@@ -152,30 +152,35 @@ function setup() {
         })
         .attr("fill", function (d) { return color(d.key); })
         .on("click", function (event, d) {
-            console.log("Clicked bar data:", d);
-            let newYAxisValue = (d.key === 'video views') ? 'views' : d.key;
-            console.log(newYAxisValue);
-            switchYAxis(newYAxisValue);
+            //console.log("Clicked bar data:", d);
+            //console.log(newYAxisValue);
+            switchYAxis(d.key);
+
+            d3.selectAll("rect").attr("opacity", 1); 
+            d3.selectAll("rect").filter(function (d) {
+                return d.key !== yAxisToShow;
+            }).attr("opacity", 0.2);
         });
 }
 
 function switchYAxis(newYAxisValue) {
+    yAxisToShow = newYAxisValue;
     switch (newYAxisValue) {
         case 'subscribers':
             d3.select("#y-axis-subscribers").classed("hidden", false);
-            d3.select("#y-axis-views").classed("hidden", true);
+            d3.select("#y-axis-video-views").classed("hidden", true);
             d3.select("#y-axis-uploads").classed("hidden", true);
             d3.select(".left-text").text("Subscribers");
             break;
-        case 'views':
-            d3.select("#y-axis-views").classed("hidden", false);
+        case 'video views':
+            d3.select("#y-axis-video-views").classed("hidden", false);
             d3.select("#y-axis-subscribers").classed("hidden", true);
             d3.select("#y-axis-uploads").classed("hidden", true);
             d3.select(".left-text").text("Total Channel Views");
             break;
         case 'uploads':
             d3.select("#y-axis-uploads").classed("hidden", false);
-            d3.select("#y-axis-views").classed("hidden", true);
+            d3.select("#y-axis-video-views").classed("hidden", true);
             d3.select("#y-axis-subscribers").classed("hidden", true);
             d3.select(".left-text").text("Number of Video Uploads");
             break;
