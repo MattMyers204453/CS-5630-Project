@@ -152,8 +152,6 @@ function setup() {
         })
         .attr("fill", function (d) { return color(d.key); })
         .on("click", function (event, d) {
-            //console.log("Clicked bar data:", d);
-            //console.log(newYAxisValue);
             switchYAxis(d.key);
 
             d3.selectAll("rect").attr("opacity", 1); 
