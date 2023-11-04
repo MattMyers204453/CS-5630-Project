@@ -59,7 +59,7 @@ function setup() {
     // Colors for the bars, change/add to these
     var color = d3.scaleOrdinal()
         .domain(subgroups)
-        .range(['#e41a1c', '#377eb8', "#FFFF00"])
+        .range(["#377eb8", '#e41a1c', "#FFFF00"])
 
     let xSubGroup = d3.scaleBand()
         .domain(subgroups)
@@ -161,6 +161,11 @@ function setup() {
                 return d.key !== yAxisToShow;
             }).attr("opacity", 0.2);
         });
+
+        d3.selectAll("rect").attr("opacity", 1); 
+        d3.selectAll("rect").filter(function (d) {
+            return d.key !== yAxisToShow;
+        }).attr("opacity", 0.2);
 }
 
 function switchYAxis(newYAxisValue) {
