@@ -1,5 +1,5 @@
 import { getData } from './data.js';
-import { initVis, updateVisualization } from './render.js';
+import { initRender, render } from './render.js';
 import { setupEventListeners } from './eventHandlers.js';
 import { setData } from './stateManager.js';
 
@@ -16,7 +16,7 @@ async function init() {
     setData(first20);
 
     // Draw visualization
-    initVis(first20);
+    initRender(first20);
 
     // Set up event listeners
     setupEventListeners();

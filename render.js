@@ -1,13 +1,11 @@
 import { getState, state } from './stateManager.js';
-import { createBarChart } from './barchart.js';
+import { drawBarChart } from './barchart.js';
 
-export function initVis(svg, data) {
-    createBarChart(state.data);
+export function initRender(svg, data) {
+    drawBarChart(state.data);
 }
 
-export function updateVisualization() {
+export function render() {
     const state = getState();
-    createBarChart(state.data)
-    // Logic to update the visualization based on the new state
-    // For instance, adjusting the y-axis or updating bar colors
+    drawBarChart(state.data)
 }

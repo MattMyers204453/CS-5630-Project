@@ -1,7 +1,12 @@
 import { state } from './stateManager.js';
+import { switchYAxis } from './stateManager.js';
+import { render } from './render.js';
+import { capitalize } from './utils.js';
 
-export function createBarChart(data) {
-    
+export function drawBarChart(data) {
+
+    clearBarChart();
+
     const HORIZONTAL_MARGIN = 150;
     const VERTICAL_MARGIN = 200;
     const CHART_WIDTH = 1200;
@@ -30,7 +35,7 @@ export function createBarChart(data) {
         .classed("left-text", true)
         .attr("x", "0")
         .attr("y", "250")
-        .text("Subscribers")
+        .text(capitalize(state.yAxisToShow))
         .attr("transform", "translate(-365, 350)rotate(270)");
 
     // X-axis label
@@ -117,6 +122,12 @@ export function createBarChart(data) {
         .attr("fill", d => color(d.key))
         .attr("opacity", d => d.key === state.yAxisToShow ? 1 : 0.2)
         .on("click", function (event, d) {
-            // TODO: Change y-axis and highlighted bars 
+            switchYAxis(d.key);
+            render(); 
+            //createBarChart(state.data);
         });
+}
+
+function clearBarChart() {
+    d3.select("#visualization-one").selectAll("*").remove();
 }
