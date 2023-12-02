@@ -4,9 +4,9 @@ let data = [];
 let first20 = [];
 let yAxisToShow = "subscribers";
 const HORIZONTAL_MARGIN = 150;
-const VERTICAL_MARGIN = 200;
-const CHART_WIDTH = 1200;
-const CHART_HEIGHT = 600;
+const VERTICAL_MARGIN = 150;
+const CHART_WIDTH = 1000;
+const CHART_HEIGHT = 500;
 const ANIMATION_DURATION = 500;
 
 await main();
@@ -26,7 +26,7 @@ function setup() {
         .attr("width", CHART_WIDTH + HORIZONTAL_MARGIN * 2)
         .attr("height", CHART_HEIGHT + VERTICAL_MARGIN * 2)
         .append("g")
-        .attr("transform", "translate(" + HORIZONTAL_MARGIN + "," + VERTICAL_MARGIN + ")");
+        .attr("transform", "translate(" + HORIZONTAL_MARGIN + "," + 10 + ")");
 
 
     // Left text for chart
@@ -41,7 +41,7 @@ function setup() {
     svg.append("text")
         .classed("bottom-text", true)
         .attr("x", CHART_WIDTH / 2 - 50)
-        .attr("y", CHART_HEIGHT + VERTICAL_MARGIN - 50)
+        .attr("y", CHART_HEIGHT + VERTICAL_MARGIN - 25)
         .text("Channel Name");
     // This is for individual channels
     let groups = d3.map(first20, (row) => {
