@@ -4,9 +4,10 @@ let data = [];
 let first20 = [];
 let yAxisToShow = "subscribers";
 const HORIZONTAL_MARGIN = 150;
-const VERTICAL_MARGIN = 200;
-const CHART_WIDTH = 1200;
-const CHART_HEIGHT = 600;
+const VERTICAL_MARGIN = 150;
+const CHART_WIDTH = 1000;
+const CHART_HEIGHT = 500;
+const ANIMATION_DURATION = 500;
 
 await main();
 setup();
@@ -25,7 +26,7 @@ function setup() {
         .attr("width", CHART_WIDTH + HORIZONTAL_MARGIN * 2)
         .attr("height", CHART_HEIGHT + VERTICAL_MARGIN * 2)
         .append("g")
-        .attr("transform", "translate(" + HORIZONTAL_MARGIN + "," + VERTICAL_MARGIN + ")");
+        .attr("transform", "translate(" + HORIZONTAL_MARGIN + "," + 10 + ")");
 
 
     // Left text for chart
@@ -40,7 +41,7 @@ function setup() {
     svg.append("text")
         .classed("bottom-text", true)
         .attr("x", CHART_WIDTH / 2 - 50)
-        .attr("y", CHART_HEIGHT + VERTICAL_MARGIN - 50)
+        .attr("y", CHART_HEIGHT + VERTICAL_MARGIN - 25)
         .text("Channel Name");
     // This is for individual channels
     let groups = d3.map(first20, (row) => {
@@ -59,7 +60,7 @@ function setup() {
     // Colors for the bars, change/add to these
     var color = d3.scaleOrdinal()
         .domain(subgroups)
-        .range(["#377eb8", '#e41a1c', "#FFFF00"])
+        .range(["#377eb8", "#e41a1c", "#FFFF00"])
 
     let xSubGroup = d3.scaleBand()
         .domain(subgroups)
@@ -124,9 +125,56 @@ function setup() {
             //console.log(d);
             return "translate(" + xScale(d.Youtuber) + ",0)";
         })
-        .selectAll("rect")
+        .on("mousemove", function(event, d) {
+            hover_label.attr("display", null);
+            let mouseX = (event.layerX - (HORIZONTAL_MARGIN + 13));
+            let mouseY = event.layerY - VERTICAL_MARGIN * 2;
+
+            console.log(d);
+
+            hover_label.selectAll("rect")
+                .attr("x", mouseX + 10)
+                .attr("y", mouseY - 65)
+                //.attr("tranform", `translate(${mouseX}, ${mouseY})`)
+                .attr("display", null);
+
+            let subscribersDisplayData = d3.select(".subscribers-text")
+            subscribersDisplayData
+                .attr("transform", `translate(${mouseX}, ${mouseY})`)
+                .text("Subscribers: " + d3.format(".3s")(d.subscribers))
+                .attr("display", null);
+
+            let channelNameDisplayData = d3.select(".channel-name-text");
+            channelNameDisplayData
+                .attr("transform", `translate(${mouseX}, ${mouseY})`)
+                .text("Channel: " + d.Youtuber)
+                .attr("display", null);
+
+            
+            let channelViewsDisplayData = d3.select(".channel-views-text");
+            channelViewsDisplayData
+                .attr("transform", `translate(${mouseX}, ${mouseY})`)
+                .text("Views: " + d3.format(".3s")(d["video views"]).replace("G", "B"))
+                .attr("display", null);
+
+            let videoUploadsDisplayData = d3.select(".video-uploads-text");
+                videoUploadsDisplayData
+                    .attr("transform", `translate(${mouseX}, ${mouseY})`)
+                    .text("Uploads: " + d3.format(".3s")(d.uploads))
+                    .attr("display", null);
+
+            
+
+        })
+        .on("mouseout", function() {
+            hover_label.attr("display", "none");
+            let subscribersDisplayData = d3.select(".subscribers-text");
+            subscribersDisplayData.attr("display", "none");
+        })
+        .selectAll("chart_rectangle")
         .data(function (d) { return subgroups.map(function (key) { return { key: key, value: d[key] }; }); })
         .enter().append("rect")
+        .classed("chart_rectangle", true)
         .attr("x", (d) => {
             return xSubGroup(d.key);
         })
@@ -154,16 +202,61 @@ function setup() {
         .on("click", function (event, d) {
             switchYAxis(d.key);
 
-            d3.selectAll("rect").attr("opacity", 1); 
-            d3.selectAll("rect").filter(function (d) {
+            d3.selectAll(".chart_rectangle")
+                .transition().duration(ANIMATION_DURATION)    
+                .attr("opacity", 1)
+                .attr("stroke-width", 1)
+                .attr("stroke", "rgb(0, 0, 0)");
+            d3.selectAll(".chart_rectangle").filter(function (d) {
                 return d.key !== yAxisToShow;
-            }).attr("opacity", 0.2);
-        });
+            })
+              .transition().duration(ANIMATION_DURATION)
+              .attr("opacity", 0.2)
+              .attr("stroke-width", 0);
+        })
 
-        d3.selectAll("rect").attr("opacity", 1); 
-        d3.selectAll("rect").filter(function (d) {
-            return d.key !== yAxisToShow;
-        }).attr("opacity", 0.2);
+        d3.selectAll(".chart_rectangle")
+        .attr("opacity", 1)
+        .attr("stroke-width", 1)
+        .attr("stroke", "rgb(0, 0, 0)");
+    d3.selectAll(".chart_rectangle").filter(function (d) {
+        return d.key !== yAxisToShow;
+    })
+      .attr("opacity", 0.2)
+      .attr("stroke-width", 0);
+
+    // This must be after the rectangles in order to render
+    // in the correct order.
+    let hover_label = svg.append("g")
+      .attr("id", "hover-label")
+      .attr("display", "none");
+  
+    hover_label.append("rect")
+        .attr("id", "tooltip-rectangle")
+        .attr("x", 1)
+        .attr("y", -60)
+        .attr("width", 300)
+        .attr("height", 70);
+
+    hover_label.append("text")
+        .attr("class", "subscribers-text")
+        .attr("x", 15)
+        .attr("y", -35);
+    
+    hover_label.append("text")
+        .attr("class", "channel-name-text")
+        .attr("x", 15)
+        .attr("y", -50);
+
+    hover_label.append("text")
+        .attr("class", "channel-views-text")
+        .attr("x", 15)
+        .attr("y", -20);
+
+    hover_label.append("text")
+        .attr("class", "video-uploads-text")
+        .attr("x", 15)
+        .attr("y", -5);
 }
 
 function switchYAxis(newYAxisValue) {
@@ -173,19 +266,34 @@ function switchYAxis(newYAxisValue) {
             d3.select("#y-axis-subscribers").classed("hidden", false);
             d3.select("#y-axis-video-views").classed("hidden", true);
             d3.select("#y-axis-uploads").classed("hidden", true);
-            d3.select(".left-text").text("Subscribers");
+            d3.select(".left-text")
+            .attr("opacity", 0)
+            .transition()
+            .duration(ANIMATION_DURATION)
+            .text("Subscribers")
+            .attr("opacity", 1);
             break;
         case 'video views':
             d3.select("#y-axis-video-views").classed("hidden", false);
             d3.select("#y-axis-subscribers").classed("hidden", true);
             d3.select("#y-axis-uploads").classed("hidden", true);
-            d3.select(".left-text").text("Total Channel Views");
+            d3.select(".left-text")
+            .attr("opacity", 0)
+            .transition()
+            .duration(ANIMATION_DURATION)
+            .text("Total Channel Views")
+            .attr("opacity", 1);
             break;
         case 'uploads':
             d3.select("#y-axis-uploads").classed("hidden", false);
             d3.select("#y-axis-video-views").classed("hidden", true);
             d3.select("#y-axis-subscribers").classed("hidden", true);
-            d3.select(".left-text").text("Number of Video Uploads");
+            d3.select(".left-text")
+            .attr("opacity", 0)
+            .transition()
+            .duration(ANIMATION_DURATION)
+            .text("Number of Video Uploads")
+            .attr("opacity", 1);
             break;
         default:
             console.log("yAxis value not recognized");
