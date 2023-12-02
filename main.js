@@ -134,7 +134,7 @@ function setup() {
 
             hover_label.selectAll("rect")
                 .attr("x", mouseX + 10)
-                .attr("y", mouseY - 65)
+                .attr("y", mouseY + 35)
                 //.attr("tranform", `translate(${mouseX}, ${mouseY})`)
                 .attr("display", null);
 
@@ -235,29 +235,29 @@ function setup() {
     hover_label.append("rect")
         .attr("id", "tooltip-rectangle")
         .attr("x", 1)
-        .attr("y", -60)
+        .attr("y", 10)
         .attr("width", 300)
         .attr("height", 70);
 
     hover_label.append("text")
         .attr("class", "subscribers-text")
         .attr("x", 15)
-        .attr("y", -35);
+        .attr("y", 65);
     
     hover_label.append("text")
         .attr("class", "channel-name-text")
         .attr("x", 15)
-        .attr("y", -50);
+        .attr("y", 50);
 
     hover_label.append("text")
         .attr("class", "channel-views-text")
         .attr("x", 15)
-        .attr("y", -20);
+        .attr("y", 80);
 
     hover_label.append("text")
         .attr("class", "video-uploads-text")
         .attr("x", 15)
-        .attr("y", -5);
+        .attr("y", 95);
 }
 
 function switchYAxis(newYAxisValue) {
