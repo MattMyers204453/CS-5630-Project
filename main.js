@@ -14,13 +14,15 @@ setup();
 
 async function main() {
     data = await getData();
-    console.log(data);
     first20 = data.filter((row) => {
         return row.rank < 21;
     });
 }
 
 function setup() {
+
+    clearBarChart();
+
     let svg = d3.select("#barchart-div")
         .append("svg")
         .attr("width", CHART_WIDTH + HORIZONTAL_MARGIN * 2)
@@ -48,7 +50,6 @@ function setup() {
         return row.Youtuber;
     })
 
-    console.log(groups);
     let xScale = d3.scaleBand()
         .domain(groups)
         .range([0, CHART_WIDTH])
@@ -69,7 +70,6 @@ function setup() {
 
     // Y-Axis for subscribers
     let maxYSubscribers = d3.max(first20, first20 => +first20.subscribers);
-    console.log(maxYSubscribers);
     let yScaleSubscribers = d3.scaleLinear()
         .domain([0, maxYSubscribers])
         .range([CHART_HEIGHT, 0]);
@@ -80,7 +80,6 @@ function setup() {
 
     // Y-Axis for video views
     let maxYVideoViews = d3.max(first20, first20 => +first20["video views"]);
-    console.log(maxYVideoViews);
     let yScaleVideoViews = d3.scaleLinear()
         .domain([0, maxYVideoViews])
         .range([CHART_HEIGHT, 0]);
@@ -92,7 +91,6 @@ function setup() {
 
     // Y-Axis for number of uploads
     let maxYUploads = d3.max(first20, first20 => + first20["uploads"]);
-    console.log(maxYUploads);
     let yScaleUploads = d3.scaleLinear()
         .domain([0, maxYUploads])
         .range([CHART_HEIGHT, 0]);
@@ -114,23 +112,19 @@ function setup() {
         .attr("transform", "rotate(-70)");
 
     // Making bar chart with subgroups of individual bars
-    console.log(xScale.bandwidth());
-    console.log(xSubGroup.bandwidth());
     svg.append("g")
         .selectAll("g")
         .data(first20)
         .enter()
         .append("g")
         .attr("transform", (d) => {
-            //console.log(d);
             return "translate(" + xScale(d.Youtuber) + ",0)";
         })
-        .on("mousemove", function(event, d) {
+        .on("mousemove", function (event, d) {
             hover_label.attr("display", null);
             let mouseX = (event.layerX - (HORIZONTAL_MARGIN + 13));
             let mouseY = event.layerY - VERTICAL_MARGIN * 2;
 
-            console.log(d);
 
             hover_label.selectAll("rect")
                 .attr("x", mouseX + 10)
@@ -150,7 +144,7 @@ function setup() {
                 .text("Channel: " + d.Youtuber)
                 .attr("display", null);
 
-            
+
             let channelViewsDisplayData = d3.select(".channel-views-text");
             channelViewsDisplayData
                 .attr("transform", `translate(${mouseX}, ${mouseY})`)
@@ -158,15 +152,15 @@ function setup() {
                 .attr("display", null);
 
             let videoUploadsDisplayData = d3.select(".video-uploads-text");
-                videoUploadsDisplayData
-                    .attr("transform", `translate(${mouseX}, ${mouseY})`)
-                    .text("Uploads: " + d3.format(".3s")(d.uploads))
-                    .attr("display", null);
+            videoUploadsDisplayData
+                .attr("transform", `translate(${mouseX}, ${mouseY})`)
+                .text("Uploads: " + d3.format(".3s")(d.uploads))
+                .attr("display", null);
 
-            
+
 
         })
-        .on("mouseout", function() {
+        .on("mouseout", function () {
             hover_label.attr("display", "none");
             let subscribersDisplayData = d3.select(".subscribers-text");
             subscribersDisplayData.attr("display", "none");
@@ -180,7 +174,6 @@ function setup() {
         })
         // This is where we scale the individual bars based on their name
         .attr("y", (d) => {
-            console.log(d);
             if (d.key === "subscribers")
                 return yScaleSubscribers(d.value);
             else if (d.key === "video views")
@@ -203,34 +196,34 @@ function setup() {
             switchYAxis(d.key);
 
             d3.selectAll(".chart_rectangle")
-                .transition().duration(ANIMATION_DURATION)    
+                .transition().duration(ANIMATION_DURATION)
                 .attr("opacity", 1)
                 .attr("stroke-width", 1)
                 .attr("stroke", "rgb(0, 0, 0)");
             d3.selectAll(".chart_rectangle").filter(function (d) {
                 return d.key !== yAxisToShow;
             })
-              .transition().duration(ANIMATION_DURATION)
-              .attr("opacity", 0.2)
-              .attr("stroke-width", 0);
+                .transition().duration(ANIMATION_DURATION)
+                .attr("opacity", 0.2)
+                .attr("stroke-width", 0);
         })
 
-        d3.selectAll(".chart_rectangle")
+    d3.selectAll(".chart_rectangle")
         .attr("opacity", 1)
         .attr("stroke-width", 1)
         .attr("stroke", "rgb(0, 0, 0)");
     d3.selectAll(".chart_rectangle").filter(function (d) {
         return d.key !== yAxisToShow;
     })
-      .attr("opacity", 0.2)
-      .attr("stroke-width", 0);
+        .attr("opacity", 0.2)
+        .attr("stroke-width", 0);
 
     // This must be after the rectangles in order to render
     // in the correct order.
     let hover_label = svg.append("g")
-      .attr("id", "hover-label")
-      .attr("display", "none");
-  
+        .attr("id", "hover-label")
+        .attr("display", "none");
+
     hover_label.append("rect")
         .attr("id", "tooltip-rectangle")
         .attr("x", 1)
@@ -242,7 +235,7 @@ function setup() {
         .attr("class", "subscribers-text")
         .attr("x", 15)
         .attr("y", 65);
-    
+
     hover_label.append("text")
         .attr("class", "channel-name-text")
         .attr("x", 15)
@@ -257,6 +250,14 @@ function setup() {
         .attr("class", "video-uploads-text")
         .attr("x", 15)
         .attr("y", 95);
+
+    d3.select("#filterButton").on("click", function () {
+        const country = d3.select("#countryInput").property("value");
+        let filteredData = filterByCountry(country);
+        filteredData.sort((a, b) => b.rank - a.rank);
+        first20 = filteredData.slice(0, 20).reverse();
+        setup();
+    });
 }
 
 function switchYAxis(newYAxisValue) {
@@ -267,38 +268,50 @@ function switchYAxis(newYAxisValue) {
             d3.select("#y-axis-video-views").classed("hidden", true);
             d3.select("#y-axis-uploads").classed("hidden", true);
             d3.select(".left-text")
-            .attr("opacity", 0)
-            .transition()
-            .duration(ANIMATION_DURATION)
-            .text("Subscribers")
-            .attr("opacity", 1);
+                .attr("opacity", 0)
+                .transition()
+                .duration(ANIMATION_DURATION)
+                .text("Subscribers")
+                .attr("opacity", 1);
             break;
         case 'video views':
             d3.select("#y-axis-video-views").classed("hidden", false);
             d3.select("#y-axis-subscribers").classed("hidden", true);
             d3.select("#y-axis-uploads").classed("hidden", true);
             d3.select(".left-text")
-            .attr("opacity", 0)
-            .transition()
-            .duration(ANIMATION_DURATION)
-            .text("Total Channel Views")
-            .attr("opacity", 1);
+                .attr("opacity", 0)
+                .transition()
+                .duration(ANIMATION_DURATION)
+                .text("Total Channel Views")
+                .attr("opacity", 1);
             break;
         case 'uploads':
             d3.select("#y-axis-uploads").classed("hidden", false);
             d3.select("#y-axis-video-views").classed("hidden", true);
             d3.select("#y-axis-subscribers").classed("hidden", true);
             d3.select(".left-text")
-            .attr("opacity", 0)
-            .transition()
-            .duration(ANIMATION_DURATION)
-            .text("Number of Video Uploads")
-            .attr("opacity", 1);
+                .attr("opacity", 0)
+                .transition()
+                .duration(ANIMATION_DURATION)
+                .text("Number of Video Uploads")
+                .attr("opacity", 1);
             break;
         default:
             console.log("yAxis value not recognized");
             return;
     }
+}
+
+function filterByCountry(Country) {
+    if (Country) {
+        return data.filter(d => d.Country.toLowerCase() === Country.toLowerCase());
+    } else {
+        return data;
+    }
+}
+
+function clearBarChart() {
+    d3.select("#barchart-div").selectAll("*").remove();
 }
 
 
