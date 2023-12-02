@@ -218,6 +218,10 @@ export function drawBarChart(data) {
         .attr("y", -5);
 }
 
+function updateBarChart() {
+    
+}
+
 function clearBarChart() {
     d3.select("#visualization-one").selectAll("*").remove();
 }
