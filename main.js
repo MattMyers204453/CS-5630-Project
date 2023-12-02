@@ -253,9 +253,7 @@ function setup() {
 
     d3.select("#filterButton").on("click", function () {
         const country = d3.select("#countryInput").property("value");
-        let filteredData = filterByCountry(country);
-        filteredData.sort((a, b) => b.rank - a.rank);
-        first20 = filteredData.slice(0, 20).reverse();
+        filterByCountry(country);
         setup();
     });
 }
@@ -304,9 +302,13 @@ function switchYAxis(newYAxisValue) {
 
 function filterByCountry(Country) {
     if (Country) {
-        return data.filter(d => d.Country.toLowerCase() === Country.toLowerCase());
+        let filteredData = data.filter(d => d.Country.toLowerCase() === Country.toLowerCase());
+        filteredData.sort((a, b) => b.rank - a.rank);
+        first20 = filteredData.slice(0, 20).reverse();
     } else {
-        return data;
+        first20 = data.filter((row) => {
+            return row.rank < 21;
+        });
     }
 }
 
