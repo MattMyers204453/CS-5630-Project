@@ -173,7 +173,8 @@ function setup() {
         })
         .selectAll("chart_rectangle")
         .data(function (d) { return subgroups.map(function (key) { return { key: key, value: d[key] }; }); })
-        .enter().append("rect")
+        .enter()
+        .append("rect")
         .classed("chart_rectangle", true)
         .attr("x", (d) => {
             return xSubGroup(d.key);

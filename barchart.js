@@ -11,6 +11,7 @@ export function drawBarChart(data) {
     const VERTICAL_MARGIN = 200;
     const CHART_WIDTH = 1200;
     const CHART_HEIGHT = 600;
+    const ANIMATION_DURATION = 500;
 
     // Get YouTuber names for x-axis
     let YouTubers = d3.map(data, (row) => {
@@ -112,9 +113,55 @@ export function drawBarChart(data) {
         .enter()
         .append("g")
         .attr("transform", d => `translate(${xScale(d.Youtuber)},0)`)
-        .selectAll("rect")
-        .data(d => subgroups.map(key => ({ key: key, value: d[key] })))
-        .enter().append("rect")
+        .on("mousemove", function (event, d) {
+            hover_label.attr("display", null);
+            let mouseX = (event.layerX - (HORIZONTAL_MARGIN + 13));
+            let mouseY = event.layerY - VERTICAL_MARGIN * 2;
+
+            console.log(d);
+
+            hover_label.selectAll("rect")
+                .attr("x", mouseX + 10)
+                .attr("y", mouseY - 65)
+                //.attr("tranform", `translate(${mouseX}, ${mouseY})`)
+                .attr("display", null);
+
+            let subscribersDisplayData = d3.select(".subscribers-text")
+            subscribersDisplayData
+                .attr("transform", `translate(${mouseX}, ${mouseY})`)
+                .text("Subscribers: " + d3.format(".3s")(d.subscribers))
+                .attr("display", null);
+
+            let channelNameDisplayData = d3.select(".channel-name-text");
+            channelNameDisplayData
+                .attr("transform", `translate(${mouseX}, ${mouseY})`)
+                .text("Channel: " + d.Youtuber)
+                .attr("display", null);
+
+
+            let channelViewsDisplayData = d3.select(".channel-views-text");
+            channelViewsDisplayData
+                .attr("transform", `translate(${mouseX}, ${mouseY})`)
+                .text("Views: " + d3.format(".3s")(d["video views"]).replace("G", "B"))
+                .attr("display", null);
+
+            let videoUploadsDisplayData = d3.select(".video-uploads-text");
+            videoUploadsDisplayData
+                .attr("transform", `translate(${mouseX}, ${mouseY})`)
+                .text("Uploads: " + d3.format(".3s")(d.uploads))
+                .attr("display", null);
+
+        })
+        .on("mouseout", function () {
+            hover_label.attr("display", "none");
+            let subscribersDisplayData = d3.select(".subscribers-text");
+            subscribersDisplayData.attr("display", "none");
+        })
+        .selectAll("chart_rectangle")
+        .data(function (d) { return subgroups.map(function (key) { return { key: key, value: d[key] }; }); })
+        .enter()
+        .append("rect")
+        .classed("chart_rectangle", true)
         .attr("x", d => xSubGroup(d.key))
         .attr("y", d => yScales[d.key](d.value))
         .attr("width", xSubGroup.bandwidth())
@@ -123,9 +170,52 @@ export function drawBarChart(data) {
         .attr("opacity", d => d.key === state.yAxisToShow ? 1 : 0.2)
         .on("click", function (event, d) {
             switchYAxis(d.key);
-            render(); 
-            //createBarChart(state.data);
+            d3.selectAll(".chart_rectangle")
+                .transition().duration(ANIMATION_DURATION)
+                .attr("opacity", 1)
+                .attr("stroke-width", 1)
+                .attr("stroke", "rgb(0, 0, 0)");
+            d3.selectAll(".chart_rectangle").filter(function (d) {
+                return d.key !== yAxisToShow;
+            })
+                .transition().duration(ANIMATION_DURATION)
+                .attr("opacity", 0.2)
+                .attr("stroke-width", 0);
+            render();
         });
+
+    // This must be after the rectangles in order to render
+    // in the correct order.
+    let hover_label = svg.append("g")
+        .attr("id", "hover-label")
+        .attr("display", "none");
+
+    hover_label.append("rect")
+        .attr("id", "tooltip-rectangle")
+        .attr("x", 1)
+        .attr("y", -60)
+        .attr("width", 300)
+        .attr("height", 70);
+
+    hover_label.append("text")
+        .attr("class", "subscribers-text")
+        .attr("x", 15)
+        .attr("y", -35);
+
+    hover_label.append("text")
+        .attr("class", "channel-name-text")
+        .attr("x", 15)
+        .attr("y", -50);
+
+    hover_label.append("text")
+        .attr("class", "channel-views-text")
+        .attr("x", 15)
+        .attr("y", -20);
+
+    hover_label.append("text")
+        .attr("class", "video-uploads-text")
+        .attr("x", 15)
+        .attr("y", -5);
 }
 
 function clearBarChart() {
